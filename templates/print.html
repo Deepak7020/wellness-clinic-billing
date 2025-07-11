@@ -1,0 +1,217 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice Summary</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .filter-form {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .filter-form label {
+      margin: 0 10px;
+    }
+    .filter-form input {
+      padding: 5px;
+      margin-right: 10px;
+    }
+    .filter-form button {
+      padding: 5px 15px;
+      background-color: #ce1515;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    .filter-form button:hover {
+      background-color: #0edd2a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #0630ee;
+      color: #fff;
+    }
+    tfoot td {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Search Invoices by Date</h2>
+
+  <form class="filter-form" method="GET" action="/filter">
+    <label>Start Date:</label>
+    <input type="date" name="start" required>
+    <label>End Date:</label>
+    <input type="date" name="end" required>
+    <button type="submit">Search</button>
+  </form>
+
+  <h2>Invoice Daliy Report</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Sr No</th>
+        <th>Invoice ID</th>
+        <th>Customer Name</th>
+        <th>Created At</th>
+        <th>Total Amount (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .Summaries }}
+      <tr>
+        <td>{{ .SrNo }}</td>
+        <td>{{ .InvoiceID }}</td>
+        <td>{{ .CustomerName }}</td>
+        <td>{{ .CreatedAt }}</td>
+        <td>{{ printf "%.2f" .TotalAmountSum }}</td>
+      </tr>
+      {{ else }}
+      <tr>
+        <td colspan="5">No records found for selected dates.</td>
+      </tr>
+      {{ end }}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4">Grand Total</td>
+        <td>{{ printf "%.2f" .GrandTotal }}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+</body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice Summary</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .filter-form {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .filter-form label {
+      margin: 0 10px;
+    }
+    .filter-form input {
+      padding: 5px;
+      margin-right: 10px;
+    }
+    .filter-form button {
+      padding: 5px 15px;
+      background-color: #ce1515;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    .filter-form button:hover {
+      background-color: #0edd2a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #0630ee;
+      color: #fff;
+    }
+    tfoot td {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Search Invoices by Date</h2>
+
+  <form class="filter-form" method="GET" action="/filter">
+    <label>Start Date:</label>
+    <input type="date" name="start" required>
+    <label>End Date:</label>
+    <input type="date" name="end" required>
+    <button type="submit">Search</button>
+  </form>
+
+  <h2>Invoice Daily Report</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Sr No</th>
+        <th>Invoice ID</th>
+        <th>Customer Name</th>
+        <th>Mobile No</th> <!-- ✅ New column -->
+        <th>Created At</th>
+        <th>Total Amount (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .Summaries }}
+      <tr>
+        <td>{{ .SrNo }}</td>
+        <td>{{ .InvoiceID }}</td>
+        <td>{{ .CustomerName }}</td>
+        <td>{{ .MobileNo }}</td> <!-- ✅ New field -->
+        <td>{{ .CreatedAt }}</td>
+        <td>{{ printf "%.2f" .TotalAmountSum }}</td>
+      </tr>
+      {{ else }}
+      <tr>
+        <td colspan="6">No records found for selected dates.</td>
+      </tr>
+      {{ end }}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="5">Grand Total</td>
+        <td>{{ printf "%.2f" .GrandTotal }}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+</body>
+</html>

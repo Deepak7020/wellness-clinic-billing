@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="invoice-box">
+    <table>
+      <tr class="clinic-header">
+        <td colspan="5">
+          <strong>WELLNESS CLINIC BYCULLA </strong><br>
+          Address: Wellness Clinic Byculla Near Ticket Window (West)
+  <br>
+          Mobile: 8591904674
+        </td>
+      </tr>
+      <tr class="customer-details">
+        <td colspan="3">
+          <strong>Bill To:</strong><br>
+          Name : {{.CustomerName}}<br>
+          Mobile: {{.Mobile}}<br>
+          Address: {{.Address}}
+        </td>
+        <td colspan="2">
+          <strong>Invoice No:</strong> {{.InvoiceNo}}<br>
+          <strong>Invoice Date:</strong> {{.InvoiceDatetime}}
+        </td>
+      </tr>
+      <tr class="heading">
+        <th>No.</th>
+        <th>TEST NAME</th>
+        <th>PRICE</th>
+        <th>Discount</th>
+        <th>Total</th>
+      </tr>
+     {{range $index, $item := .Tests}}
+<tr class="item">
+  <td>{{add $index 1}}</td>
+  <td>{{$item.TestName}}</td>
+  <td>₹{{formatFloat $item.Price}}</td>
+  <td>₹{{formatFloat $item.Discount}}</td>
+  <td>₹{{formatFloat $item.TotalAmount}}</td>
+</tr>
+{{end}}
+
+      <tr class="total">
+        <td colspan="3"></td>
+        <td><strong>TOTAL</strong></td>
+        <td><strong>₹{{formatFloat .TotalAmount}}</strong></td>
+      </tr>
+    </table>
+
+    <p><strong>Total Amount (in words):</strong><br>{{.TotalAmountWords}}</p>
+    <p class="terms"><strong>Terms and Conditions:</strong><br>All disputes are subject to Maharashtra jurisdiction only.</p>
+    <p class="sign">Authorized Signatory<br><strong>WELLNESS CLINIC BYCULLA </strong></p>
+  </div>
+</body>
+</html>

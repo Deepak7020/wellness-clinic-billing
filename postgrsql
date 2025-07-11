@@ -1,0 +1,45 @@
+CREATE TABLE invoice (
+    invoice_no SERIAL PRIMARY KEY,              -- Auto-increment starting from 1
+    invoice_datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Date and Time (stored in 24-hour format)
+    customer_name VARCHAR(100),                 -- Name of the customer
+    mobile VARCHAR(15),                         -- Mobile number
+    address TEXT,                               -- Address
+    test_name VARCHAR(100),                     -- Test name
+    price NUMERIC(10, 2),                       -- Price of the test
+    discount NUMERIC(10, 2),                    -- Discount amount
+    total_amount NUMERIC(10, 2),                -- Final amount after discount
+    total_amount_words TEXT                     -- Amount in words (e.g., "One Thousand Rupees Only")
+);
+ALTER TABLE invoicedeepak
+ADD COLUMN gender TEXT;
+
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  address TEXT NOT NULL,
+  mobile VARCHAR(15) NOT NULL,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password VARCHAR(100) NOT NULL
+);
+
+
+
+CREATE DATABASE wellness_invoices;
+
+\c clinicdb
+
+CREATE TABLE invoices12 (
+  id SERIAL PRIMARY KEY,
+  customer_name TEXT,
+  mobile TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE tests12 (
+  id SERIAL PRIMARY KEY,
+  invoice_id INT REFERENCES invoices12(id),
+  item TEXT,
+  quantity INT,
+  total_amount FLOAT
+);

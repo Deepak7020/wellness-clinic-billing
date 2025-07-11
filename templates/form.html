@@ -1,0 +1,481 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Invoice</title>
+  <script>
+  function addCustomTest() {
+    const testName = document.getElementById("customTestName").value.trim();
+    const testPrice = parseFloat(document.getElementById("customTestPrice").value.trim());
+
+    if (!testName || isNaN(testPrice)) {
+      alert("Please enter a valid test name and price.");
+      return;
+    }
+
+    const tableBody = document.querySelector("#itemTable tbody");
+    const newRow = tableBody.rows[0].cloneNode(true);
+
+    // Create a new <option> and append to the <select>
+    const selectBox = newRow.querySelector("select");
+    const newOption = document.createElement("option");
+    newOption.text = `${testName}`;
+    newOption.value = `${testName}|${testPrice}`;
+    selectBox.appendChild(newOption);
+    selectBox.value = newOption.value;
+
+    // Set price and total
+    newRow.querySelector('[name="price[]"]').value = testPrice;
+    newRow.querySelector('[name="discount[]"]').value = 0;
+    newRow.querySelector('[name="total[]"]').value = testPrice.toFixed(2);
+
+    tableBody.appendChild(newRow);
+
+    // Clear input fields
+    document.getElementById("customTestName").value = "";
+    document.getElementById("customTestPrice").value = "";
+
+    updateGrandTotal();
+  }
+</script>
+
+   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e7e3e6;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      background: hsl(180, 17%, 90%);
+      padding: 30px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    button {
+      padding: 10px 16px;
+      margin: 5px 2px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button[type="submit"] {
+      background-color: #667eea;
+      color: #fff;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .total {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: right;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    .total p {
+      margin: 5px 0;
+    }
+    button[onclick^="addRow"] {
+      background-color: #48bb78;
+      color: #fff;
+    }
+    button[onclick^="deleteRow"] {
+      background-color: #e53e3e;
+      color: white;
+    }
+    button[onclick^="updateRow"] {
+      background-color: #3182ce;
+      color: rgb(240, 231, 231);
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      td, th {
+        text-align: right;
+        position: relative;
+        padding-left: 50%;
+      }
+      td::before, th::before {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+      }
+      .custom-test-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f2f7f6;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.custom-test-section h3 {
+  margin-bottom: 15px;
+  color: #2d3748;
+  font-size: 1.2rem;
+}
+
+.custom-test-section input {
+  margin-bottom: 10px;
+}
+
+.custom-test-section button {
+  background-color: #48bb78;
+  color: white;
+}
+
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Medical Invoice Form</h1>
+    <form id="invoiceForm" method="POST" action="/submit">
+      <input class="form-control" type="text" name="customer_name" placeholder="Patient Name" required />
+      <input class="form-control" type="text" name="mobile" placeholder="Mobile" required />
+
+      <select class="form-control" name="gender" required>
+        <option value="">Select Gender</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+
+      <textarea class="form-control" name="address" placeholder="Address" required></textarea>
+
+      <table id="itemTable">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Price (₹)</th>
+            <th>Discount (%)</th>
+            <th>Total (₹)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+          <td>
+  <select class="form-control" name="service[]" onchange="updatePrice(this)">
+    <option value="">Select Test</option>
+  <option value="1. Dr Consultation Fees  |10"> 1. Dr Consultation Fees </option>   
+  <option value="2 .DR Consultation With Medicine |100"> 2. Dr Consultation With Medicine</option>
+  <option value="3 . IPD With Out Medicine  |400">3.IPD With Out Medicine </option>
+  <option value="4. Albumin |150">4. Albumin </option>
+  <option value="5. Alkaline Phosphate|150">5. Alkaline Phosphate </option>
+  <option value="6. Amalyse|700">6. Amalyse </option>
+  <option value="7. AMH|1250">7. AMH </option>
+  <option value="8. ANA|1100">8. ANA </option>
+  <option value="9. ANC Profile|1400">6. ANC Profile </option>
+  <option value="10. Anti CCP|950">7. Anti CCP</option>
+  <option value="11. APTT|500">8. APTT </option>
+  <option value="12. ASO|300">9. ASO </option>
+  <option value="13. ASO titre|600"> 10. ASO titre</option>
+  <option value="14. ATG|1000">10. ATG </option>
+  <option value="15 . ABG  |1200">11. ABG</option>
+  <option value="16. Albumin Urine 24 Hours|1200">12. Albumin Urine 24 Hours</option>
+  <option value="17. ACE |1400">17. ACE </option>
+  <option value="18. Alpha photo Protein|1200">18 . Alpha photo Protein</option>
+  <option value="19. Anti TPO|900">19. Anti TPO </option>
+<option value="20. Beta HCG|600">20. Beta HCG </option>
+  <option value="21. Blood Group Rh Factor|100">21. Blood Group Rh Factor </option>
+  <option value="22. Blood Sugar Fasting|35">22. Blood Sugar Fasting </option>
+  <option value="23. Blood sugar HGT Strip|40">23. Blood sugar HGT Strip </option>
+  <option value="24. Blood Sugar PP|35">24. Blood Sugar PP </option>
+ <option value="25. BOMBAY Blood Group |300">25 . BOMBAY Blood Group </option>
+  <option value="26. Blood Urea Nitrogen|150">26. Blood Urea Nitrogen </option>
+  <option value="27. BTCT|100">27. BTCT </option>
+  <option value="28. BUN|150">28. BUN </option>
+  <option value="29. Billirubin T.D.I |200">29. Billirubin T.D.I</option>
+  <option value="30. CA 125|900">30. CA 125 </option>
+  <option value="31. CA 15.3 |2000">31. CA 15.3 </option>
+  <option value="32. CA 19.9|900">32. CA 19.9 </option>
+  <option value="33. Calcium|110">33. Calcium </option>
+  <option value="34. CBC|98">34. CBC </option>
+  <option value="35. CEA|800">35. CEA </option>
+  <option value="36. Chicken Guniya IGM|1000">36. Chicken Guniya IGM </option>
+ <option value="37. Chicken Guniya IGG|1000">37. Chicken Guniya IGM </option>
+ <option value="38. Cholesterol|150">38. Cholesterol </option> 
+  <option value="39. CPK MB|800">39. CPK MB </option>
+  <option value="40. CPK Total|800">40. CPK Total </option>
+  <option value="41. CRP|400">41. CRP </option>
+  <option value="42. CD 4 |1200">42. CD 4 </option>
+  <option value="43. CD 8 |1200">43. CD 8 </option>
+  <option value="44. CD 10 |1200">44. CD 10 </option>
+  <option value="45. D - Dimmer|1200">45. D- Dimmer </option>
+  <option value="46. Dengue IGG/IGM|800">46. Dengue IGG/IGM </option>
+  <option value="47. Dengue NS1|500">47. Dengue NS1 </option>
+  <option value="48. Dengue Profile|1100">48. Dengue Profile </option>
+  <option value="49. Dressing|50">49. Dressing </option>
+  <option value="50. Dual Marker|3200">50. Dual Marker </option>
+  <option value="51. Dressing 2|100">51. Dressing 2 </option>
+ <option value="52. DS DNA |2200">52. DS DNA </option>
+ <option value="53. E2|700">53. E2</option>
+  <option value="54. ECG|100">54. ECG </option>
+  <option value="55. Electrolytes|400">55. Electrolytes </option>
+  <option value="56. ESR|100">56. ESR </option>
+  <option value="57. Ferratin|900">57. Ferratin </option>
+  <option value="58. Fever Profile|500">58. Fever Profile </option>
+  <option value="59. Free PSA|1300">59. Free PSA </option>
+  <option value="60. Free Testesteron|1200">60. Free Testesteron </option>
+  <option value="61. Free Thyroid Function Test |600">61. Free Thyroid Function Test (FTFT)</option>
+  <option value="62. FSH|350">62. FSH </option>
+  <option value="63. Full Body Commercial|2200">63. Full Body Commercial </option>
+  <option value="64. Full Body Platinum|1100">64. Full Body Platinum </option>
+ <option value="65. Food allergy panel |6000">65 Food allergy panel</option>
+ <option value="66. FNAC |2100">66. FNAC</option>
+ <option value="67. G6PD|700">67. G6PD </option>
+  <option value="68. GTT - 4 Time |150">68. GTT - 4 Time </option>
+ <option value="69. GGTP |600">69. GGTP </option>  
+  <option value="70. HAV IGG/IGM|1800">70. HAV IGG/IGM </option>
+  <option value="71. HB Electro Phoresis|900">71. HB Electro Phoresis </option>
+  <option value="72. HBA1C|350">72. HBA1C </option>
+  <option value="73. HBsag|300">73. HBsag </option>
+  <option value="74 . HBseg|1200">74. HBseg</option>
+<option value="75. HIV Eliza |1200">75. HIV Eliza </option>
+<option value="76. HBsag Eliza |900">76. HBsag Eliza </option>
+  <option value="77. Hepatitis A |1700">77. Hepatitis A</option>
+  <option value="78. HCV|400">78. HCV </option>
+  <option value="79. HEV IGG/IGM|2200">79. HEV IGG/IGM </option>
+  <option value="80. HIV 1/2 |400">80. HIV 1/2 </option>
+  <option value="81. HLAB27|900">81. HLAB27 </option>
+  <option value="82. HBV DNA |9000">82. HBV DNA </option>
+  <option value="83. Homocystine Level|1200">83. Homocystine Level </option>
+  <option value="84. HIV Western blot |4600">84. HIV Western blot</option>
+  <option value="85. IGE level|600">85. IGE level </option>
+  <option value="86. Injection|50">86. Injection </option>
+  <option value="87. Insulin Fasting|900">87. Insulin Fasting </option>
+  <option value="88. Insulin Post Lunch|900">88. Insulin Post Lunch </option>
+  <option value="89. Iron|900">89. Iron </option>
+ <option value="90. IONIC Calcium |700">90. IONIC Calcium</option>
+  <option value="91. LDH|700">91. LDH </option>
+  <option value="92. LH|350">92. LH </option>
+  <option value="93. Lipase|700">93. Lipase </option>
+  <option value="94. Lipid Profile|350">94. Lipid Profile </option>
+  <option value="95. Liver Function Test (LFT)|350">95. Liver Function Test (LFT) </option>
+  <option value="96. Malaria Parasite (MP) |100">96. Malaria Parasite (MP) </option>
+  <option value="97. MP Antigen|250">97. MP Antigen </option>
+  <option value="98. Magnesium |400">98. Magnesium </option>
+  <option value="99. Peripheral Smear (PS)|150">99. Peripheral Smear (PS) </option>
+  <option value="100. Prolactin|350">100. Prolactin </option>
+  <option value="101. Protein Electro Phoresis|900">101. Protein Electro Phoresis </option>
+  <option value="102. PS for MP|200">102. PS for MP </option>
+  <option value="103. PSA Total|900">103. PSA Total </option>
+  <option value="104.Potassium |150">104. Potassium</option>
+  <option value="105. PT INR|400">105. PT INR </option>
+  <option value="106. 3 PSA |1200 ">106. 3 PSA </option>
+  <option value="107.Pro BNP |2200">107. Pro BNP </option>
+  <option value="108. Progesteron |1200">108. Progesteron</option>
+  <option value="109. Quadriple Marker|4000">109. Quadriple Marker </option>
+  <option value="110. RA Factor|300">110. RA Factor </option>
+  <option value=" 111. RA titre |500">111. RA titre</option>
+  <option value="112. RA Quantitative |500">112. RA Quantitative </option>
+  <option value="113. RA Qualitative |500">113. RA Qualitative </option>
+  <option value="114. Renal Function Test RFT (Maxi)|900">114. Renal Function Test RFT (Maxi) </option>
+  <option value="115. Renal Function Test RFT (Mini)|400">115. Renal Function Test RFT (Mini) </option>
+  <option value="116. Retic Count|300">116. Retic Count </option>
+ <option value="117. RNA |2200">117. RNA</option>
+  <option value="118. RTPCR | 700">118. RTPCR</option>
+  <option value="119. Serum Billirubin|150">119. Serum Billirubin </option>
+  <option value="120. Serum Createnine|110">120. Serum Createnine </option>
+  <option value="121. SGOT|150">121. SGOT </option>
+  <option value="122. SGPT|150">122. SGPT </option>
+  <option value="123. Stool Alucard Blood|400">123. Stool Alucard Blood </option>
+  <option value="124. Stool C/S|1300">124. Stool C/S </option>
+  <option value="125. Stool R/M|300">125. Stool R/M </option>
+  <option value="126. sodium |200">126. sodium </option>
+  <option value="127 . Spatum AFB 1 day |200">127. Spatum AFB 1 day</o41tion>
+   <option value="128 . Spatum AFB 3 day |500">128.Spatum AFB 3 day</option>
+    <option value="129 . Spatum AFB Culture |900">129.Spatum AFB Culture</option>
+  <option value="130. Free Testesteron |1500">130. Free Testesteron</option>
+  <option value="131. Testesteron|1000">131. Testesteron </option>
+  <option value="132. TFT Thyroid Function Test|250">132. TFT Thyroid Function Test </option>
+  <option value="133. Total Protein|150">133. Total Protein </option>
+  <option value="134. Triglycarides|150">134. Triglycarides </option>
+  <option value="135. Trop I|900">135. Trop I </option>
+  <option value="136. Trop T|900">136. Trop T </option>
+  <option value="137. TSH|150">137. TSH </option>
+  <option value="138. Typhi IGG/IGM|400">138. Typhi IGG/IGM </option>
+  <option value="139. Torch 4 |2200">139. Torch 4</option>
+  <option value="140. Torch 8 |2200">140. Torch 8</option>
+  <option value="141. Torch 10 |2200">141. Torch 10</option>
+  <option value="142. Torch 13 |2200">142. Torch 13</option>
+  <option value="143. TB Glod |3600">143. TB Glod</option>
+  <option value="144. Uric Acid|110">144. Uric Acid </option>
+  <option value="145. Urine C/S|700">145. Urine C/S </option>
+  <option value="146. Urine microalbumin creatinine ratio|900">146. Urine microalbumin creatinine ratio </option>
+  <option value="147. Urine R/M|100">147. Urine R/M </option>
+  <option value="148. Urine microalbumin |700">148. Urine microalbumin  </option>
+  <option value="149. Urine Keton bodies|100">149.Urine Keton bodies</option>
+  <option value="150. urine 24 Hours |900">150. urine 24 Hours</option>
+  <option value="151. VDRL|300">151. VDRL </option>
+  <option value="152. VIT B 12|700">152. VIT B 12 </option>
+  <option value="153. VIT D 3|700">153. VIT D 3 </option>
+  <option value="154. VIT C|3200">154. VIT C </option>
+ <option value="155.VBG | 1300">155.VBG </option>
+  <option value="156. Widal|110">156. Widal </option>
+  <option value="157. X-RAY One Shoot|50">157. X-RAY One Shoot </option>
+
+
+</select>
+
+</td>
+
+            <td><input class="form-control" type="number" name="price[]" readonly /></td>
+            <td><input class="form-control" type="number" name="discount[]" value="0" min="0" max="100" oninput="calculateTotal(this)" /></td>
+            <td><input class="form-control" type="number" name="total[]" readonly /></td>
+            <td>
+              <button type="button" onclick="updateRow(this)">Update</button>
+
+              <button type="button" onclick="deleteRow(this)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button type="button" onclick="addRow()">+ Add Another Test</button>
+
+      <div class="total">
+        <p>Grand Total: ₹<span id="grandTotal">0</span></p>
+        <p>Amount in Words: <span id="amountInWords">Zero Rupees</span></p>
+      </div>
+
+      <div class="custom-test-section">
+  <h3>Add New Test Name And Price</h3>
+  <input type="text" id="customTestName" class="form-control" placeholder="Enter Test Name" />
+  <input type="number" id="customTestPrice" class="form-control" placeholder="Enter Price ₹" />
+  <button type="button" onclick="addCustomTest()">+ Add Custom Test</button>
+</div>
+
+      <button type="submit">Invoice Print</button>
+    </form>
+  </div>
+
+  <script>
+    function updatePrice(select) {
+      const row = select.closest("tr");
+      const priceField = row.querySelector('[name="price[]"]');
+      const discountField = row.querySelector('[name="discount[]"]');
+      const totalField = row.querySelector('[name="total[]"]');
+      const [testName, price] = select.value.split('|');
+      priceField.value = price || 0;
+      discountField.value = 0;
+      totalField.value = price || 0;
+      updateGrandTotal();
+    }
+
+    function calculateTotal(discountInput) {
+      const row = discountInput.closest("tr");
+      const price = parseFloat(row.querySelector('[name="price[]"]').value || 0);
+      let discount = parseFloat(discountInput.value || 0);
+      discount = Math.min(Math.max(discount, 0), 100); // Clamp 0–100
+      const total = price - (price * discount / 100);
+      row.querySelector('[name="total[]"]').value = total.toFixed(2);
+      updateGrandTotal();
+    }
+
+    function addRow() {
+      const tableBody = document.querySelector("#itemTable tbody");
+      const newRow = tableBody.rows[0].cloneNode(true);
+      newRow.querySelectorAll("input").forEach(input => input.value = "");
+      newRow.querySelector("select").selectedIndex = 0;
+      tableBody.appendChild(newRow);
+    }
+
+    function updateRow(button) {
+      const row = button.closest("tr");
+      const price = parseFloat(row.querySelector('[name="price[]"]').value || 0);
+      const discount = parseFloat(row.querySelector('[name="discount[]"]').value || 0);
+      const total = price - (price * discount / 100);
+      row.querySelector('[name="total[]"]').value = total.toFixed(2);
+      updateGrandTotal();
+    }
+
+    function deleteRow(button) {
+      const row = button.closest("tr");
+      const tableBody = document.querySelector("#itemTable tbody");
+      if (tableBody.rows.length > 1) {
+        row.remove();
+        updateGrandTotal();
+      } else {
+        alert("At least one test must remain.");
+      }
+    }
+
+    function updateGrandTotal() {
+      let grandTotal = 0;
+      document.querySelectorAll('[name="total[]"]').forEach(input => {
+        grandTotal += parseFloat(input.value || 0);
+      });
+      document.getElementById("grandTotal").innerText = grandTotal.toFixed(2);
+      document.getElementById("amountInWords").innerText = convertToWords(Math.floor(grandTotal)) + " Rupees";
+    }
+
+    function convertToWords(num) {
+      const a = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+                 "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen",
+                 "Eighteen", "Nineteen"];
+      const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+      if (num === 0) return "Zero";
+      if (num > 9999) return "Amount too large";
+
+      let words = "";
+      if (Math.floor(num / 1000) > 0) {
+        words += a[Math.floor(num / 1000)] + " Thousand ";
+        num %= 1000;
+      }
+      if (Math.floor(num / 100) > 0) {
+        words += a[Math.floor(num / 100)] + " Hundred ";
+        num %= 100;
+      }
+      if (num > 0) {
+        if (num < 20) {
+          words += a[num];
+        } else {
+          words += b[Math.floor(num / 10)] + " " + a[num % 10];
+        }
+      }
+      return words.trim();
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+ 
