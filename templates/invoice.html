@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,8 +11,9 @@
     <table>
       <tr class="clinic-header">
         <td colspan="5">
-          <strong>WELLNESS CLINIC BYCULLA </strong><br>
-          Address: Wellness Clinic Byculla Near Ticket Window (West)
+         <strong>WELLNESS CLINIC VASHI </strong><br>
+          Address: Wellness Clinic Sector-30, Vashi Station,inorbit mall, near platform no 1 VRSCCL company,vashi
+
   <br>
           Mobile: 8591904674
         </td>
@@ -21,6 +23,7 @@
           <strong>Bill To:</strong><br>
           Name : {{.CustomerName}}<br>
           Mobile: {{.Mobile}}<br>
+           Age: {{.Age}}<br>
           Address: {{.Address}}
         </td>
         <td colspan="2">
@@ -51,10 +54,179 @@
         <td><strong>₹{{formatFloat .TotalAmount}}</strong></td>
       </tr>
     </table>
-
+<div class="contact-info">
+  <p><strong>We develop custom billing software.</strong><br>
+  Interested parties, please call:<br>
+  📞 +91 83694 22482<br>
+  📞 +91 82081 92987</p>
+</div>
     <p><strong>Total Amount (in words):</strong><br>{{.TotalAmountWords}}</p>
     <p class="terms"><strong>Terms and Conditions:</strong><br>All disputes are subject to Maharashtra jurisdiction only.</p>
     <p class="sign">Authorized Signatory<br><strong>WELLNESS CLINIC BYCULLA </strong></p>
   </div>
+
+<style>
+  .contact-info {
+  position: absolute;
+  bottom: 20px;
+  right: 20px; /* Change to 'left' if you want it on the left side */
+  font-size: 14px;
+  color: #333;
+  background-color: #f9f9f9;
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: fit-content;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+}
+
+</style>
 </body>
+</html> -->
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+
+    .invoice-box {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .clinic-header, .customer-details, .heading, .item, .total {
+      border-bottom: 1px solid #eee;
+    }
+
+    .clinic-header td,
+    .customer-details td,
+    .item td,
+    .total td {
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    .heading th {
+      background: #eee;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .total td {
+      font-weight: bold;
+    }
+
+    .terms,
+    .custom-note,
+    .sign {
+      margin-top: 25px;
+      font-size: 12px;
+      color: #000;
+    }
+
+    @media print {
+      body {
+        background-color: white;
+      }
+
+      .invoice-box {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-box">
+    <table>
+      <tr class="clinic-header">
+        <td colspan="5">
+          <strong>WELLNESS CLINIC VASHI </strong><br>
+          Address: Wellness Clinic Sector-30, Vashi Station,inorbit mall, near platform no 1 VRSCCL company,vashi
+
+          Mobile: 8369422482
+        </td>
+      </tr>
+
+      <tr class="customer-details">
+        <td colspan="3">
+          <strong>Bill To:</strong><br>
+          Name: {{.CustomerName}}<br>
+          Mobile: {{.Mobile}}<br>
+          Age: {{.Age}}<br>
+          Address: {{.Address}}
+        </td>
+        <td colspan="2">
+          <strong>Invoice No:</strong> {{.InvoiceNo}}<br>
+          <strong>Invoice Date:</strong> {{.InvoiceDatetime}}
+        </td>
+      </tr>
+
+      <tr class="heading">
+        <th>No.</th>
+        <th>TEST NAME</th>
+        <th>PRICE</th>
+        <th>Discount</th>
+        <th>Total</th>
+      </tr>
+
+      {{range $index, $item := .Tests}}
+      <tr class="item">
+        <td>{{add $index 1}}</td>
+        <td>{{$item.TestName}}</td>
+        <td>₹{{formatFloat $item.Price}}</td>
+        <td>₹{{formatFloat $item.Discount}}</td>
+        <td>₹{{formatFloat $item.TotalAmount}}</td>
+      </tr>
+      {{end}}
+
+      <tr class="total">
+        <td colspan="3"></td>
+        <td><strong>TOTAL</strong></td>
+        <td><strong>₹{{formatFloat .TotalAmount}}</strong></td>
+      </tr>
+    </table>
+
+    <p><strong>Total Amount (in words):</strong><br>{{.TotalAmountWords}}</p>
+
+    
+
+    <p class="terms"><strong>Terms and Conditions:</strong><br>
+      All disputes are subject to Maharashtra jurisdiction only.
+    </p>
+
+    <p class="custom-note">
+      <strong>Note:</strong><br>
+      We develop custom billing software. Interested parties,<br> 
+      please call:📞 +91 83694 22482 &nbsp;&nbsp;&nbsp;📞 +91 82081 92987
+    </p>
+    <p class="sign">
+      Authorized Signatory<br>
+      <strong>WELLNESS CLINIC VASHI</strong>
+    </p>
+  </div>
+
+</body>
+
 </html>
