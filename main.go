@@ -18,6 +18,7 @@ type InvoiceSummary struct {
 	SrNo           int
 	InvoiceID      int
 	CustomerName   string
+	Age            sql.NullInt64
 	MobileNo       string
 	CreatedAt      string
 	TotalAmountSum float64
@@ -35,12 +36,12 @@ type TestItem struct {
 	TotalAmount      float64
 	TotalAmountWords string
 }
-
 type Invoice struct {
 	InvoiceNo        int
 	InvoiceDatetime  string
 	CustomerName     string
 	Gender           string
+	Age              int 
 	Mobile           string
 	Address          string
 	Tests            []TestItem
@@ -126,6 +127,12 @@ func main() {
 		mobile := c.PostForm("mobile")
 		address := c.PostForm("address")
 		gender := c.PostForm("gender")
+		ageStr := c.PostForm("age")
+		age, err := strconv.Atoi(ageStr)
+		if err != nil || age < 1 || age > 120 {
+			c.String(http.StatusBadRequest, "Invalid age. Must be between 1 and 120.")
+			return
+		}
 
 		services := c.PostFormArray("service[]")
 		prices := c.PostFormArray("price[]")
@@ -154,11 +161,11 @@ func main() {
 		totalAmountWords := convertToWords(int(totalAmount))
 
 		var invoiceID int
-		err := db.QueryRow(`
-			INSERT INTO invoices12 (customer_name, mobile, address)
-			VALUES ($1, $2, $3)
-			RETURNING id
-		`, customerName, mobile, address).Scan(&invoiceID)
+		err = db.QueryRow(`
+	INSERT INTO invoices12 (customer_name, mobile, address, age)
+	VALUES ($1, $2, $3, $4)
+	RETURNING id
+`, customerName, mobile, address, age).Scan(&invoiceID)
 
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Invoice Insert Error: %v", err)
@@ -183,6 +190,7 @@ func main() {
 			CustomerName:     customerName,
 			Gender:           gender,
 			Mobile:           mobile,
+			Age:              age,
 			Address:          address,
 			Tests:            tests,
 			TotalAmount:      totalAmount,
@@ -205,21 +213,23 @@ func main() {
 func invoiceSummaryHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		rows, err := db.Query(`
-			SELECT 
-				invoices12.id AS invoice_id,
-				invoices12.customer_name,
-				invoices12.mobile AS mobile_no,
-				invoices12.created_at,
-				SUM(tests12.total_amount) AS total_amount_sum
-			FROM 
-				invoices12
-			JOIN 
-				tests12 ON invoices12.id = tests12.invoice_id
-			GROUP BY 
-				invoices12.id, invoices12.customer_name, invoices12.created_at
-			ORDER BY 
-				invoices12.id
-		`)
+	SELECT 
+		invoices12.id AS invoice_id,
+		invoices12.customer_name,
+		invoices12.age,
+		invoices12.mobile AS mobile_no,
+		invoices12.created_at,
+		SUM(tests12.total_amount) AS total_amount_sum
+	FROM 
+		invoices12
+	JOIN 
+		tests12 ON invoices12.id = tests12.invoice_id
+	GROUP BY 
+		invoices12.id, invoices12.customer_name, invoices12.age, invoices12.mobile, invoices12.created_at
+	ORDER BY 
+		invoices12.id
+`)
+
 		if err != nil {
 			log.Println("Invoice summary query error:", err)
 			c.String(http.StatusInternalServerError, "DB Error")
@@ -231,7 +241,8 @@ func invoiceSummaryHandler(db *sql.DB) gin.HandlerFunc {
 		srNo := 1
 		for rows.Next() {
 			var s InvoiceSummary
-			err := rows.Scan(&s.InvoiceID, &s.CustomerName, &s.MobileNo, &s.CreatedAt, &s.TotalAmountSum)
+			err := rows.Scan(&s.InvoiceID, &s.CustomerName, &s.Age, &s.MobileNo, &s.CreatedAt, &s.TotalAmountSum)
+
 			if err != nil {
 				log.Println("Scan error:", err)
 				continue
@@ -269,25 +280,26 @@ func filterInvoicesHandler(db *sql.DB) gin.HandlerFunc {
 
 		startTime := start + " 00:00:00"
 		endTime := end + " 23:59:59"
-
 		rows, err := db.Query(`
-			SELECT 
-				invoices12.id AS invoice_id,
-				invoices12.customer_name,
-				invoices12.mobile AS mobile_no,
-				invoices12.created_at,
-				SUM(tests12.total_amount) AS total_amount_sum
-			FROM 
-				invoices12
-			JOIN 
-				tests12 ON invoices12.id = tests12.invoice_id
-			WHERE 
-				invoices12.created_at BETWEEN $1 AND $2
-			GROUP BY 
-				invoices12.id, invoices12.customer_name, invoices12.created_at
-			ORDER BY 
-				invoices12.id
-		`, startTime, endTime)
+	SELECT 
+		invoices12.id AS invoice_id,
+		invoices12.customer_name,
+		invoices12.age,
+		invoices12.mobile AS mobile_no,
+		invoices12.created_at,
+		SUM(tests12.total_amount) AS total_amount_sum
+	FROM 
+		invoices12
+	JOIN 
+		tests12 ON invoices12.id = tests12.invoice_id
+	WHERE 
+		invoices12.created_at BETWEEN $1 AND $2
+	GROUP BY 
+		invoices12.id, invoices12.customer_name, invoices12.age, invoices12.mobile, invoices12.created_at
+	ORDER BY 
+		invoices12.id
+`, startTime, endTime)
+
 		if err != nil {
 			log.Println("Date filter query error:", err)
 			c.String(http.StatusInternalServerError, "DB Error")
@@ -299,7 +311,8 @@ func filterInvoicesHandler(db *sql.DB) gin.HandlerFunc {
 		srNo := 1
 		for rows.Next() {
 			var s InvoiceSummary
-			err := rows.Scan(&s.InvoiceID, &s.CustomerName, &s.MobileNo, &s.CreatedAt, &s.TotalAmountSum)
+			err := rows.Scan(&s.InvoiceID, &s.CustomerName, &s.Age, &s.MobileNo, &s.CreatedAt, &s.TotalAmountSum)
+
 			if err != nil {
 				log.Println("Scan error:", err)
 				continue
